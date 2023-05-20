@@ -8,6 +8,7 @@ public class InputReader : MonoBehaviour
 
     public event Action ChangeDimensionEvent;
     public event Action JumpEvent;
+    public event Action AttackEvent;
 
     private void OnMovement(InputValue value)
     {
@@ -18,7 +19,7 @@ public class InputReader : MonoBehaviour
     {
         if (value.isPressed)
         {
-            Debug.Log("Hello");
+            AttackEvent?.Invoke();
         }
     }
 
@@ -29,5 +30,15 @@ public class InputReader : MonoBehaviour
             ChangeDimensionEvent?.Invoke();
         }
     }
+
+    // SideScroll Controls
+
+    private void OnJump(InputValue value)
+    {
+        if (value.isPressed)
+        {
+            JumpEvent?.Invoke();
+        }
+    }    
     
 }

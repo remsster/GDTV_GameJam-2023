@@ -608,7 +608,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <InputReader>k__BackingField: {fileID: 1627258082}
   <Rigidbody>k__BackingField: {fileID: 1627258088}
+  <PlayerInput>k__BackingField: {fileID: 1627258085}
   speed: 10
+  jumpForce: 10
 --- !u!70 &1627258087
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
