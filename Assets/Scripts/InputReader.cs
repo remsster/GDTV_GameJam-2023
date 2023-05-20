@@ -9,6 +9,11 @@ public class InputReader : MonoBehaviour
     public event Action ChangeDimensionEvent;
     public event Action JumpEvent;
 
+    private void OnMovement(InputValue value)
+    {
+        MovementValue = value.Get<Vector2>();
+    }
+
     private void OnAttack(InputValue value)
     {
         if (value.isPressed)

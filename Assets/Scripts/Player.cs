@@ -10,6 +10,9 @@ public class Player : MonoBehaviour
 {
 
     [field:SerializeField] public InputReader InputReader { get; private set; }
+    [field:SerializeField] public Rigidbody2D Rigidbody { get; private set; }
+
+    [SerializeField] private float speed;
 
     private Dimension currentDimension;
 
@@ -21,7 +24,17 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        // Debug.Log("MovementValue" + InputReader.MovementValue);
+        if (currentDimension == Dimension.TopDown)
+        {
+            Rigidbody.gravityScale = 0;
+            Rigidbody.velocity = new Vector2(InputReader.MovementValue.x * speed, InputReader.MovementValue.y * speed);
+        }
+
+        if (currentDimension == Dimension.SideScroll)
+        {
+            Rigidbody.velocity = new Vector2(InputReader.MovementValue.x * speed, Rigidbody.velocity.y);
+            Rigidbody.gravityScale = 1;
+        }
     }
 
     private void OnEnable()
@@ -40,9 +53,8 @@ public class Player : MonoBehaviour
         if (currentDimension == Dimension.TopDown)
         {
             currentDimension = Dimension.SideScroll;
-        }
-
-        if (currentDimension == Dimension.SideScroll)
+        } 
+        else if (currentDimension == Dimension.SideScroll)
         {
             currentDimension = Dimension.TopDown;
         }
