@@ -7,8 +7,8 @@ public class InputReader : MonoBehaviour
     public Vector2 MovementValue { get; private set; }
 
     public event Action ChangeDimensionEvent;
-    public event Action JumpEvent;
     public event Action AttackEvent;
+    public event Action InteractEvent;
 
     private void OnMovement(InputValue value)
     {
@@ -31,14 +31,12 @@ public class InputReader : MonoBehaviour
         }
     }
 
-    // SideScroll Controls
-
-    private void OnJump(InputValue value)
+    private void OnInteract(InputValue value)
     {
         if (value.isPressed)
         {
-            JumpEvent?.Invoke();
+            InteractEvent?.Invoke();
         }
-    }    
-    
+    }
+
 }

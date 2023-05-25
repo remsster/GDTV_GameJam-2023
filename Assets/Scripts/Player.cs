@@ -1,10 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public enum Dimension
+public enum ColorDimension
 {
-    TopDown = 1,
-    SideScroll = 2
+    Red,Blue
 }
 
 public class Player : MonoBehaviour
@@ -17,59 +16,89 @@ public class Player : MonoBehaviour
     [SerializeField] private float speed;
     [SerializeField] private float jumpForce;
 
-    private Dimension currentDimension;
+    private int keys = 0;
 
-    private void Start()
-    {
-        currentDimension = Dimension.TopDown;
-        // Debug.Log("Current Dimension: " + currentDimension);
-    }
+    private Door currentDoor;
 
+    // ---------------------------------------------
+    // Unity Engine
+    // ---------------------------------------------
+  
     private void Update()
     {
-        if (currentDimension == Dimension.TopDown)
-        {
-            Rigidbody.gravityScale = 0;
-            Rigidbody.velocity = new Vector2(InputReader.MovementValue.x * speed, InputReader.MovementValue.y * speed);
-        }
-
-        if (currentDimension == Dimension.SideScroll)
-        {
-            Rigidbody.velocity = new Vector2(InputReader.MovementValue.x * speed, Rigidbody.velocity.y);
-            Rigidbody.gravityScale = 1;
-        }
+        Debug.Log("Keys Count: " + keys);
+        Move();
     }
 
     private void OnEnable()
     {
         InputReader.ChangeDimensionEvent += InputReader_ChangeDimensionEvent;
-        InputReader.JumpEvent += InputReader_JumpEvent;
+        InputReader.InteractEvent += InputReader_InteractEvent;
     }
 
     private void OnDisable()
     {
         InputReader.ChangeDimensionEvent -= InputReader_ChangeDimensionEvent;
-        InputReader.JumpEvent -= InputReader_JumpEvent;
+        InputReader.InteractEvent -= InputReader_InteractEvent;
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.TryGetComponent<Pickup>(out Pickup pickup))
+        {
+            if (pickup.Category == PickupCategory.Key)
+            {
+                IncreaseKeys();
+            }
+        }
+
+        if (collision.TryGetComponent<Door>(out Door door))
+        {
+            currentDoor = door;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.TryGetComponent<Door>(out Door door))
+        {
+            currentDoor = null;
+        }
+    }
+
+    // ---------------------------------------------
+    // Events
+    // ---------------------------------------------
 
     private void InputReader_ChangeDimensionEvent()
-    {
-        if (currentDimension == Dimension.TopDown)
-        {
-            PlayerInput.SwitchCurrentActionMap("SideScroll");
-            currentDimension = Dimension.SideScroll;
-        } 
-        else if (currentDimension == Dimension.SideScroll)
-        {
-            PlayerInput.SwitchCurrentActionMap("TopDown");
-            currentDimension = Dimension.TopDown;
-        }
-        Debug.Log("Current Dimension: " + currentDimension);
+    {        
     }
 
-    private void InputReader_JumpEvent()
+    private void InputReader_InteractEvent()
     {
-        if (currentDimension == Dimension.TopDown) return;
-        Rigidbody.velocity = new Vector2(0, jumpForce);
+        if (currentDoor != null && keys > 0)
+        {
+            Destroy(currentDoor.gameObject);
+            currentDoor = null;
+        }
+    }
+
+    // ---------------------------------------------
+    // Other
+    // ---------------------------------------------
+
+    private void Move()
+    {
+        Rigidbody.velocity = new Vector2(InputReader.MovementValue.x * speed, InputReader.MovementValue.y * speed);
+    }
+
+    private void IncreaseKeys()
+    {
+        keys++;
+    }
+
+    private void DecreaseKeys()
+    {
+        keys--;
     }
 }
