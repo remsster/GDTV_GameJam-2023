@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+
+
 public class InputReader : MonoBehaviour
 {
     public Vector2 MovementValue { get; private set; }

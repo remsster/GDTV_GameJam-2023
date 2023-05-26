@@ -6,7 +6,12 @@ public enum ColorDimension
     Red,Blue
 }
 
-public class Player : MonoBehaviour
+enum Direction
+{
+    Up, Down, Left, Right
+}
+
+public class PlayerController : MonoBehaviour
 {
 
     [field:SerializeField] public InputReader InputReader { get; private set; }
@@ -16,6 +21,16 @@ public class Player : MonoBehaviour
     [SerializeField] private float speed;
     [SerializeField] private float jumpForce;
 
+    [SerializeField] private GameObject attackEffector;
+
+    [Header("Attack Directions")]
+    [SerializeField] private Transform attackLeft;
+    [SerializeField] private Transform attackRight;
+    [SerializeField] private Transform attackUp;
+    [SerializeField] private Transform attackDown;
+
+    private Direction direction;
+
     private int keys = 0;
 
     private Door currentDoor;
@@ -23,10 +38,14 @@ public class Player : MonoBehaviour
     // ---------------------------------------------
     // Unity Engine
     // ---------------------------------------------
-  
+
+    private void Start()
+    {
+        direction = Direction.Up;
+    }
+
     private void Update()
     {
-        Debug.Log("Keys Count: " + keys);
         Move();
     }
 
@@ -34,12 +53,14 @@ public class Player : MonoBehaviour
     {
         InputReader.ChangeDimensionEvent += InputReader_ChangeDimensionEvent;
         InputReader.InteractEvent += InputReader_InteractEvent;
+        InputReader.AttackEvent += InputReader_AttackEvent;
     }
 
     private void OnDisable()
     {
         InputReader.ChangeDimensionEvent -= InputReader_ChangeDimensionEvent;
         InputReader.InteractEvent -= InputReader_InteractEvent;
+        InputReader.AttackEvent -= InputReader_AttackEvent;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -74,6 +95,20 @@ public class Player : MonoBehaviour
     {        
     }
 
+    private void InputReader_AttackEvent()
+    {
+        Transform transfrom = direction switch
+        {
+            Direction.Up => attackUp,
+            Direction.Down => attackDown,
+            Direction.Left => attackLeft,
+            Direction.Right => attackRight,
+            _ => null
+        };
+        if (transform == null) Debug.LogError("Attack Transform is null");
+        Instantiate(attackEffector, transfrom.position, Quaternion.identity);
+    }
+
     private void InputReader_InteractEvent()
     {
         if (currentDoor != null && keys > 0)
@@ -89,6 +124,22 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
+        switch (InputReader.MovementValue)
+        {
+            case Vector2 v when v.Equals(Vector2.up):
+                direction = Direction.Up;
+                break;
+            case Vector2 v when v.Equals(Vector2.down):
+                direction = Direction.Down;
+                break;
+            case Vector2 v when v.Equals(Vector2.left):
+                direction = Direction.Left;
+                break;
+            case Vector2 v when v.Equals(Vector2.right):
+                direction = Direction.Right;
+                break;
+        }
+        
         Rigidbody.velocity = new Vector2(InputReader.MovementValue.x * speed, InputReader.MovementValue.y * speed);
     }
 
