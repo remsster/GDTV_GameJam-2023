@@ -16,9 +16,9 @@ public class AttackEffector : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.GetComponent<Enemy>())
+        if (collision.gameObject.TryGetComponent<EnemyController>(out EnemyController enemy))
         {
-            Destroy(collision.gameObject);
+            enemy.TakeDamage();
         }
 
     }

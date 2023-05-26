@@ -17,9 +17,11 @@ public class PlayerController : MonoBehaviour
     [field:SerializeField] public InputReader InputReader { get; private set; }
     [field:SerializeField] public Rigidbody2D Rigidbody { get; private set; }
     [field: SerializeField] public PlayerInput PlayerInput { get; private set; }
+    [field: SerializeField] public Health Health { get; private set; }
 
     [SerializeField] private float speed;
-    [SerializeField] private float jumpForce;
+    [SerializeField] private float attackTimer;
+    
 
     [SerializeField] private GameObject attackEffector;
 
@@ -32,6 +34,8 @@ public class PlayerController : MonoBehaviour
     private Direction direction;
 
     private int keys = 0;
+    private bool canAttack = true;
+    private float timer = 0;
 
     private Door currentDoor;
 
@@ -47,6 +51,11 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         Move();
+        if (timer > attackTimer)
+        {
+            canAttack = true;
+        }
+        timer += Time.deltaTime;
     }
 
     private void OnEnable()
@@ -97,6 +106,7 @@ public class PlayerController : MonoBehaviour
 
     private void InputReader_AttackEvent()
     {
+        if (!canAttack) return;
         Transform transfrom = direction switch
         {
             Direction.Up => attackUp,
@@ -107,11 +117,13 @@ public class PlayerController : MonoBehaviour
         };
         if (transform == null) Debug.LogError("Attack Transform is null");
         Instantiate(attackEffector, transfrom.position, Quaternion.identity);
+        timer = 0;
+        canAttack = false;
     }
 
     private void InputReader_InteractEvent()
     {
-        if (currentDoor != null && keys > 0)
+        if (currentDoor != null && keys > 0 && direction == Direction.Up)
         {
             Destroy(currentDoor.gameObject);
             currentDoor = null;
