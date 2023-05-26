@@ -2,13 +2,30 @@ using UnityEngine;
 
 public class AttackEffector : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField] private Sprite swordUp;
+    [SerializeField] private Sprite swordDown;
+    [SerializeField] private Sprite swordLeft;
+    [SerializeField] private Sprite swordRight;
+    [SerializeField] private SpriteRenderer spriteRenderer; 
+
+    [SerializeField] private float destroyTimer = 0.5f;
+
+    private Direction direction;
+
     void Start()
     {
-        Destroy(gameObject, 0.5f);
+        if (direction == Direction.Up) spriteRenderer.sprite = swordUp;
+        else if (direction == Direction.Down)
+        {
+            spriteRenderer.sortingOrder = 3;
+            spriteRenderer.sprite = swordDown;
+        }
+        else if (direction == Direction.Left) spriteRenderer.sprite = swordLeft;
+        else if (direction == Direction.Right) spriteRenderer.sprite = swordRight;
+        Destroy(gameObject,destroyTimer);
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         
@@ -21,5 +38,10 @@ public class AttackEffector : MonoBehaviour
             enemy.TakeDamage();
         }
 
+    }
+
+    public void SetDirection(Direction direction)
+    {
+        this.direction = direction;
     }
 }

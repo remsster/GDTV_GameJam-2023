@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,7 +8,7 @@ public enum ColorDimension
     Red,Blue
 }
 
-enum Direction
+public enum Direction
 {
     Up, Down, Left, Right
 }
@@ -42,6 +43,10 @@ public class PlayerController : MonoBehaviour
     private float timer = 0;
 
     private Door currentDoor;
+
+    [HideInInspector] public int Keys => keys;
+
+    public event Action KeyCollectedEvent;
 
     // ---------------------------------------------
     // Unity Engine
@@ -121,7 +126,8 @@ public class PlayerController : MonoBehaviour
             _ => null
         };
         if (transform == null) Debug.LogError("Attack Transform is null");
-        Instantiate(attackEffector, transfrom.position, Quaternion.identity);
+        GameObject af = Instantiate(attackEffector, transfrom.position, Quaternion.identity);
+        af.GetComponent<AttackEffector>().SetDirection(direction);
         StartCoroutine(PlayAttackAnimation());
         timer = 0;
         canAttack = false;
@@ -132,6 +138,8 @@ public class PlayerController : MonoBehaviour
         if (currentDoor != null && keys > 0 && direction == Direction.Up)
         {
             Destroy(currentDoor.gameObject);
+            keys--;
+            KeyCollectedEvent?.Invoke();
             currentDoor = null;
         }
     }
@@ -227,6 +235,7 @@ public class PlayerController : MonoBehaviour
     private void IncreaseKeys()
     {
         keys++;
+        KeyCollectedEvent?.Invoke();
     }
 
     private void DecreaseKeys()
