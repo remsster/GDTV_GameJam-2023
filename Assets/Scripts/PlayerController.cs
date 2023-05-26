@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour
     [field:SerializeField] public InputReader InputReader { get; private set; }
     [field:SerializeField] public Rigidbody2D Rigidbody { get; private set; }
     [field: SerializeField] public PlayerInput PlayerInput { get; private set; }
+    [field: SerializeField] public SpriteRenderer SpriteRenderer { get; private set; }
+    [field: SerializeField] public Animator Animator { get; private set; }
     [field: SerializeField] public Health Health { get; private set; }
 
     [SerializeField] private float speed;
@@ -139,16 +141,46 @@ public class PlayerController : MonoBehaviour
         switch (InputReader.MovementValue)
         {
             case Vector2 v when v.Equals(Vector2.up):
+                Animator.Play("up walk");
+                SpriteRenderer.flipX = false;
                 direction = Direction.Up;
                 break;
             case Vector2 v when v.Equals(Vector2.down):
                 direction = Direction.Down;
+                SpriteRenderer.flipX = false;
+                Animator.Play("down walk");
                 break;
             case Vector2 v when v.Equals(Vector2.left):
                 direction = Direction.Left;
+                SpriteRenderer.flipX = true;
+                Animator.Play("side walk");
                 break;
             case Vector2 v when v.Equals(Vector2.right):
                 direction = Direction.Right;
+                SpriteRenderer.flipX = false;
+                Animator.Play("side walk");
+                break;
+            default:
+                if (direction == Direction.Up)
+                {
+                    SpriteRenderer.flipX = false;
+                    Animator.Play("up idle");
+                } 
+                else if (direction == Direction.Down)
+                {
+                    SpriteRenderer.flipX = false;
+                    Animator.Play("down idle");
+                }
+                else if (direction == Direction.Left)
+                {
+                    SpriteRenderer.flipX = true;
+                    Animator.Play("side idle");
+                }
+                else if (direction == Direction.Right)
+                {
+                    SpriteRenderer.flipX = false;
+                    Animator.Play("side idle");
+                }
                 break;
         }
         
