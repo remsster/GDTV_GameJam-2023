@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -37,6 +38,7 @@ public class PlayerController : MonoBehaviour
 
     private int keys = 0;
     private bool canAttack = true;
+    private bool isAttacking = false;
     private float timer = 0;
 
     private Door currentDoor;
@@ -109,6 +111,7 @@ public class PlayerController : MonoBehaviour
     private void InputReader_AttackEvent()
     {
         if (!canAttack) return;
+        Rigidbody.velocity = Vector2.zero;
         Transform transfrom = direction switch
         {
             Direction.Up => attackUp,
@@ -119,6 +122,7 @@ public class PlayerController : MonoBehaviour
         };
         if (transform == null) Debug.LogError("Attack Transform is null");
         Instantiate(attackEffector, transfrom.position, Quaternion.identity);
+        StartCoroutine(PlayAttackAnimation());
         timer = 0;
         canAttack = false;
     }
@@ -138,6 +142,7 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
+        if (isAttacking) return;
         switch (InputReader.MovementValue)
         {
             case Vector2 v when v.Equals(Vector2.up):
@@ -161,30 +166,62 @@ public class PlayerController : MonoBehaviour
                 Animator.Play("side walk");
                 break;
             default:
-                if (direction == Direction.Up)
-                {
-                    SpriteRenderer.flipX = false;
-                    Animator.Play("up idle");
-                } 
-                else if (direction == Direction.Down)
-                {
-                    SpriteRenderer.flipX = false;
-                    Animator.Play("down idle");
-                }
-                else if (direction == Direction.Left)
-                {
-                    SpriteRenderer.flipX = true;
-                    Animator.Play("side idle");
-                }
-                else if (direction == Direction.Right)
-                {
-                    SpriteRenderer.flipX = false;
-                    Animator.Play("side idle");
-                }
+                PlayIdleAnimation();
                 break;
         }
         
         Rigidbody.velocity = new Vector2(InputReader.MovementValue.x * speed, InputReader.MovementValue.y * speed);
+    }
+
+    private IEnumerator PlayAttackAnimation()
+    {
+        isAttacking = true;
+        if (direction == Direction.Up)
+        {
+            SpriteRenderer.flipX = false;
+            Animator.Play("attack up");
+        }
+        else if (direction == Direction.Down)
+        {
+            SpriteRenderer.flipX = false;
+            Animator.Play("attack down");
+        }
+        else if (direction == Direction.Left)
+        {
+            SpriteRenderer.flipX = true;
+            Animator.Play("attack left");
+        }
+        else if (direction == Direction.Right)
+        {
+            SpriteRenderer.flipX = false;
+            Animator.Play("attack right");
+        }
+        yield return new WaitForSeconds(0.5f);
+        isAttacking = false;
+    }
+
+    private void PlayIdleAnimation()
+    {
+        if (direction == Direction.Up)
+        {
+            SpriteRenderer.flipX = false;
+            Animator.Play("up idle");
+        }
+        else if (direction == Direction.Down)
+        {
+            SpriteRenderer.flipX = false;
+            Animator.Play("down idle");
+        }
+        else if (direction == Direction.Left)
+        {
+            SpriteRenderer.flipX = true;
+            Animator.Play("side idle");
+        }
+        else if (direction == Direction.Right)
+        {
+            SpriteRenderer.flipX = false;
+            Animator.Play("side idle");
+        }
     }
 
     private void IncreaseKeys()
