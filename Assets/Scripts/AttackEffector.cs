@@ -33,9 +33,19 @@ public class AttackEffector : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        Debug.Log(collision.gameObject.name);
         if (collision.gameObject.TryGetComponent<EnemyController>(out EnemyController enemy))
         {
+            Debug.Log("Hit an enemy");
             enemy.TakeDamage();
+            return;
+        }
+
+        if (collision.gameObject.TryGetComponent<DoorSwitch>(out DoorSwitch doorSwitch))
+        {
+            Debug.Log("Hit a switch");
+            doorSwitch.UnlockDoor();
+            return;
         }
 
     }

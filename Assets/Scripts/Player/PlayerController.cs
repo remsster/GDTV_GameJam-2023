@@ -137,7 +137,7 @@ public class PlayerController : MonoBehaviour
     {
         if (currentDoor != null && keys > 0 && direction == Direction.Up)
         {
-            Destroy(currentDoor.gameObject);
+            currentDoor.Unlock();
             keys--;
             KeyCollectedEvent?.Invoke();
             currentDoor = null;
